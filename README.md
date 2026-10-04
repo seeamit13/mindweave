@@ -1,5 +1,6 @@
 ---
 title: Mindweave
+short_description: Ask questions and create reports from your sources.
 emoji: 📓
 colorFrom: indigo
 colorTo: blue
