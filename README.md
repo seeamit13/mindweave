@@ -1,5 +1,5 @@
 ---
-title: Notebook Clone (RAG)
+title: Mindweave
 emoji: 📓
 colorFrom: indigo
 colorTo: blue
@@ -9,7 +9,7 @@ app_file: app.py
 pinned: false
 ---
 
-# 📓 Notebook Clone (NotebookLM / Gemini Notebook style)
+# 📓 Mindweave — Your sources, connected.
 
 A full-stack RAG application: create multiple notebooks, add sources (PDF,
 PPTX, TXT, or a web URL), ask questions about a notebook's sources with
@@ -47,7 +47,8 @@ cd notebooklm-clone
 python -m venv .venv && source .venv/bin/activate   # optional but recommended
 pip install -r requirements.txt
 
-export GROQ_API_KEY=gsk_...   # required, see below
+# Put GROQ_API_KEY=gsk_... in the project-root .env file.
+# Alternatively, set GROQ_API_KEY in your shell environment.
 
 python app.py
 ```
@@ -64,14 +65,15 @@ for those.
 | Variable | Required | Purpose |
 |---|---|---|
 | `GROQ_API_KEY` | Yes | Used for RAG answer generation and report/quiz generation (via the Groq API). Get a free key at https://console.groq.com/keys. |
-| `LLM_MODEL` | No | Overrides the Groq model used (default: `llama-3.3-70b-versatile`). |
+| `LLM_MODEL` | No | Overrides the Groq model used (default: `openai/gpt-oss-120b`). |
 | `EMBEDDING_MODEL_NAME` | No | Overrides the sentence-transformers embedding model. |
 | `RERANKER_MODEL_NAME` | No | Overrides the cross-encoder reranking model. |
 | `APP_DATA_DIR` | No | Overrides where notebook/chat/artifact/vector-store data is written (default: `./data`). |
 
-No API keys are committed to this repository. Locally, set them as shell
-environment variables (or a `.env` file loaded by your shell — this repo
-does not commit one, see `.gitignore`). On Hugging Face, set them as **Space
+No API keys are committed to this repository. Locally, add `GROQ_API_KEY`
+to a `.env` file in the project root; the app loads it automatically, and
+shell environment variables take precedence. The `.env` file is ignored by
+Git. On Hugging Face, set keys as **Space
 secrets** (Settings → Variables and secrets). In GitHub Actions, the
 deploy workflow only needs `HF_TOKEN` and `HF_SPACE_REPO` as **repository
 secrets** (see below) — it does not need `GROQ_API_KEY`, since that's
@@ -154,7 +156,7 @@ guidance, rather than solving it with unnecessary infrastructure:
 ## Deploying to Hugging Face Spaces + CI/CD
 
 1. Create a new Space on Hugging Face (SDK: **Gradio**), e.g.
-   `https://huggingface.co/spaces/<your-username>/notebook-clone`.
+   `https://huggingface.co/spaces/<your-username>/mindweave`.
 2. In the Space's **Settings → Variables and secrets**, add `GROQ_API_KEY`
    as a secret.
 3. In this GitHub repository's **Settings → Secrets and variables → Actions**,
@@ -162,7 +164,7 @@ guidance, rather than solving it with unnecessary infrastructure:
    - `HF_TOKEN` — a Hugging Face access token with write access to the Space
      (create one at huggingface.co/settings/tokens).
    - `HF_SPACE_REPO` — the Space's git URL, e.g.
-     `https://huggingface.co/spaces/<your-username>/notebook-clone`.
+     `https://huggingface.co/spaces/<your-username>/mindweave`.
 4. Push to `main`. `.github/workflows/deploy.yml` mirrors the repository to
    the Space, which triggers Hugging Face to rebuild and restart the app
    automatically. No secrets are ever committed to this repo — the workflow

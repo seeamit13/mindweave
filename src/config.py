@@ -11,10 +11,14 @@ tier (see README "Storage & Persistence Limitations").
 import os
 from pathlib import Path
 
+from dotenv import load_dotenv
+
 # ---------------------------------------------------------------------------
 # Paths
 # ---------------------------------------------------------------------------
 BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / ".env")
+
 DATA_DIR = Path(os.environ.get("APP_DATA_DIR", BASE_DIR / "data"))
 
 NOTEBOOKS_DIR = DATA_DIR / "notebooks"          # per-notebook metadata + sources + chat + artifacts
@@ -31,7 +35,7 @@ for d in (DATA_DIR, NOTEBOOKS_DIR, CHROMA_DIR):
 # Chat/generation model - served via the Groq API (OpenAI-compatible, fast,
 # free-tier available at https://console.groq.com/keys).
 GROQ_API_KEY = os.environ.get("GROQ_API_KEY", "")
-LLM_MODEL = os.environ.get("LLM_MODEL", "llama-3.3-70b-versatile")
+LLM_MODEL = os.environ.get("LLM_MODEL", "openai/gpt-oss-120b")
 LLM_MAX_TOKENS = int(os.environ.get("LLM_MAX_TOKENS", "1500"))
 
 # Local, free, no-API-key-required embedding model (downloaded on first run).

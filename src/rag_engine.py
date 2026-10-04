@@ -20,6 +20,7 @@ from dataclasses import dataclass, field
 from functools import lru_cache
 
 import chromadb
+from chromadb.config import Settings
 from sentence_transformers import SentenceTransformer, CrossEncoder
 
 from . import config
@@ -61,7 +62,10 @@ def _get_reranker() -> CrossEncoder:
 
 @lru_cache(maxsize=None)
 def _get_chroma_collection(notebook_id: str):
-    client = chromadb.PersistentClient(path=str(store.chroma_dir(notebook_id)))
+    client = chromadb.PersistentClient(
+        path=str(store.chroma_dir(notebook_id)),
+        settings=Settings(anonymized_telemetry=False),
+    )
     return client.get_or_create_collection(
         name=f"nb_{notebook_id}",
         metadata={"hnsw:space": "cosine"},

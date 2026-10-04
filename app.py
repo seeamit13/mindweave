@@ -12,6 +12,7 @@ See README.md for full setup, environment variables, and architecture notes.
 from __future__ import annotations
 
 import traceback
+import logging
 
 import gradio as gr
 
@@ -20,6 +21,8 @@ from src import ingestion
 from src import rag_engine
 from src import artifacts
 from src.llm_client import LLMError
+
+logger = logging.getLogger(__name__)
 
 
 # ---------------------------------------------------------------------------
@@ -65,10 +68,11 @@ def _format_chat_history(notebook_id: str):
     return pairs
 
 
-def _format_artifact_list(notebook_id: str):
-    if not notebook_id:
-        return []
-    return [str(p) for p in store.list_artifacts(notebook_id)]
+def _artifact_dropdown_update(notebook_id: str, selected: str | None = None):
+    choices = [str(p) for p in store.list_artifacts(notebook_id)] if notebook_id else []
+    if selected not in choices:
+        selected = None
+    return gr.update(choices=choices, value=selected)
 
 
 # ---------------------------------------------------------------------------
@@ -100,7 +104,7 @@ def rename_notebook(notebook_id, new_name):
 
 def delete_notebook(notebook_id):
     if not notebook_id:
-        return gr.update(), _err("Select a notebook first."), [], [], []
+        return gr.update(), _err("Select a notebook first."), [], [], gr.update(), "", None
     try:
         store.delete_notebook(notebook_id)
         choices = _notebook_choices()
@@ -110,17 +114,21 @@ def delete_notebook(notebook_id):
             "🗑️ Notebook deleted.",
             _format_sources_table(new_val),
             _format_chat_history(new_val),
-            _format_artifact_list(new_val),
+            _artifact_dropdown_update(new_val),
+            "",
+            None,
         )
     except Exception as e:
-        return gr.update(), _err(str(e)), [], [], []
+        return gr.update(), _err(str(e)), [], [], gr.update(), gr.update(), gr.update()
 
 
 def switch_notebook(notebook_id):
     return (
         _format_sources_table(notebook_id),
         _format_chat_history(notebook_id),
-        _format_artifact_list(notebook_id),
+        _artifact_dropdown_update(notebook_id),
+        "",
+        None,
     )
 
 
@@ -210,15 +218,26 @@ def ask_question(notebook_id, question, strategy):
 
 def gen_artifact(notebook_id, kind):
     if not notebook_id:
-        return _err("Select a notebook first."), _format_artifact_list(notebook_id)
+        return _err("Select a notebook first."), gr.update(), gr.update(), gr.update()
     try:
         fn = artifacts.ARTIFACT_GENERATORS[kind]
         path = fn(notebook_id)
-        return f"✅ Generated **{kind}**: `{path.name}`", _format_artifact_list(notebook_id)
+        return (
+            f"✅ Generated **{kind}**: `{path.name}`",
+            _artifact_dropdown_update(notebook_id, str(path)),
+            view_artifact(str(path)),
+            str(path),
+        )
     except (ValueError, LLMError) as e:
-        return _err(str(e)), _format_artifact_list(notebook_id)
-    except Exception:
-        return _err(f"Unexpected error generating {kind}."), _format_artifact_list(notebook_id)
+        return _err(str(e)), gr.update(), gr.update(), gr.update()
+    except Exception as e:
+        logger.exception("Unexpected error generating %s for notebook %s", kind, notebook_id)
+        return (
+            _err(f"Unexpected error generating {kind}: {e}"),
+            gr.update(),
+            gr.update(),
+            gr.update(),
+        )
 
 
 def view_artifact(path):
@@ -235,8 +254,8 @@ def view_artifact(path):
 # UI layout
 # ---------------------------------------------------------------------------
 
-with gr.Blocks(title="Notebook Clone (RAG)") as demo:
-    gr.Markdown("# 📓 Notebook Clone — RAG over your own sources")
+with gr.Blocks(title="Mindweave") as demo:
+    gr.Markdown("# 📓 Mindweave — Turn your sources into insight")
     gr.Markdown(
         "Create a notebook, add sources (PDF / PPTX / TXT / URL), ask questions with cited "
         "answers, and generate a report or quiz from the notebook's content."
@@ -303,12 +322,20 @@ with gr.Blocks(title="Notebook Clone (RAG)") as demo:
     delete_btn.click(
         delete_notebook,
         [notebook_dropdown],
-        [notebook_dropdown, notebook_status, sources_table, chatbot, artifact_dropdown],
+        [
+            notebook_dropdown,
+            notebook_status,
+            sources_table,
+            chatbot,
+            artifact_dropdown,
+            artifact_viewer,
+            artifact_file,
+        ],
     )
     notebook_dropdown.change(
         switch_notebook,
         [notebook_dropdown],
-        [sources_table, chatbot, artifact_dropdown],
+        [sources_table, chatbot, artifact_dropdown, artifact_viewer, artifact_file],
     )
 
     upload_btn.click(upload_file, [notebook_dropdown, file_upload, chunking_choice], [ingest_status, sources_table])
@@ -317,8 +344,9 @@ with gr.Blocks(title="Notebook Clone (RAG)") as demo:
     ask_btn.click(ask_question, [notebook_dropdown, question_input, strategy_choice], [chatbot, chat_status, question_input])
     question_input.submit(ask_question, [notebook_dropdown, question_input, strategy_choice], [chatbot, chat_status, question_input])
 
-    report_btn.click(lambda nb: gen_artifact(nb, "report"), [notebook_dropdown], [artifact_status, artifact_dropdown])
-    quiz_btn.click(lambda nb: gen_artifact(nb, "quiz"), [notebook_dropdown], [artifact_status, artifact_dropdown])
+    artifact_outputs = [artifact_status, artifact_dropdown, artifact_viewer, artifact_file]
+    report_btn.click(lambda nb: gen_artifact(nb, "report"), [notebook_dropdown], artifact_outputs)
+    quiz_btn.click(lambda nb: gen_artifact(nb, "quiz"), [notebook_dropdown], artifact_outputs)
     artifact_dropdown.change(view_artifact, [artifact_dropdown], [artifact_viewer])
     artifact_dropdown.change(lambda p: p, [artifact_dropdown], [artifact_file])
 

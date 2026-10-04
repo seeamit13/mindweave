@@ -1,4 +1,4 @@
-# Deployment & Demo Guide
+# Mindweave — Deployment & Demo Guide
 
 This repo is deployment-ready: the application code, `requirements.txt`,
 `.github/workflows/deploy.yml`, and HF Spaces config (front-matter in
@@ -9,11 +9,16 @@ about 10-15 minutes.
 
 ## Part 1 — Create the Hugging Face Space
 
+Already deployed under another name? Open the Space's **Settings** tab and
+rename the repository there. Hugging Face redirects the old URL to the new
+one. Then update the GitHub `HF_SPACE_REPO` secret to the new Space URL
+(see Part 3) so future deployments target the renamed Space.
+
 1. Go to https://huggingface.co/new-space.
-2. Owner: your account. Space name: e.g. `notebook-clone`. SDK: **Gradio**.
+2. Owner: your account. Space name: e.g. `mindweave`. SDK: **Gradio**.
    Visibility: your choice (Public makes the demo link shareable).
 3. Click **Create Space**. Hugging Face gives you an empty git repo at
-   `https://huggingface.co/spaces/<your-username>/notebook-clone`.
+   `https://huggingface.co/spaces/<your-username>/mindweave`.
 4. In the Space, go to **Settings → Variables and secrets → New secret**
    and add:
    - `GROQ_API_KEY` = your key from https://console.groq.com/keys (free tier available)
@@ -25,7 +30,7 @@ about 10-15 minutes.
 cd notebooklm-clone
 git init
 git add .
-git commit -m "Initial commit: Notebook Clone RAG app"
+git commit -m "Initial commit: Mindweave RAG app"
 git branch -M main
 git remote add origin https://github.com/<your-username>/<your-repo>.git
 git push -u origin main
@@ -36,7 +41,7 @@ git push -u origin main
 1. On GitHub: **Settings → Secrets and variables → Actions → New repository secret**, add:
    - `HF_TOKEN` — a Hugging Face token with **write** access
      (create at https://huggingface.co/settings/tokens).
-   - `HF_SPACE_REPO` — `https://huggingface.co/spaces/<your-username>/notebook-clone`
+   - `HF_SPACE_REPO` — `https://huggingface.co/spaces/<your-username>/mindweave`
 2. Push any change to `main` (or re-run the `Deploy to Hugging Face Space`
    workflow manually from the **Actions** tab — it supports
    `workflow_dispatch`). Watch the run go green.
