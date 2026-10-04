@@ -1,0 +1,26 @@
+# Secrets / env
+.env
+*.env
+.env.*
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.pytest_cache/
+
+# App runtime data (notebooks, chat history, vector DB) - not committed;
+# see README "Storage & Persistence Limitations"
+data/
+!data/.gitkeep
+
+# Evaluation output (regenerate via eval/eval_rag.py)
+eval/eval_results.json
+
+# OS / editor cruft
+.DS_Store
+.idea/
+.vscode/
+*.log

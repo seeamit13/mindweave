@@ -1,0 +1,39 @@
+name: Deploy to Hugging Face Space
+
+# Push to main -> mirror the repo to the Hugging Face Space, which triggers
+# the Space to rebuild and restart automatically.
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: {}
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: Push to Hugging Face Space
+        env:
+          HF_TOKEN: ${{ secrets.HF_TOKEN }}
+          HF_SPACE_REPO: ${{ secrets.HF_SPACE_REPO }} # e.g. https://huggingface.co/spaces/<user>/<space-name>
+        run: |
+          set -e
+          if [ -z "$HF_TOKEN" ] || [ -z "$HF_SPACE_REPO" ]; then
+            echo "Missing HF_TOKEN or HF_SPACE_REPO secret. See README for setup." >&2
+            exit 1
+          fi
+
+          git config --global user.email "actions@github.com"
+          git config --global user.name "GitHub Actions"
+
+          # Embed the token into the HF remote URL for a non-interactive push.
+          AUTHED_URL=$(echo "$HF_SPACE_REPO" | sed "s#https://#https://user:${HF_TOKEN}@#")
+
+          git remote add space "$AUTHED_URL" || git remote set-url space "$AUTHED_URL"
+          git push --force space HEAD:main

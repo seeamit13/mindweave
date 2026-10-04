@@ -1,0 +1,22 @@
+[
+  {
+    "question": "What is the main topic of these sources?",
+    "expected_keywords": []
+  },
+  {
+    "question": "What are the key definitions or terms introduced in the material?",
+    "expected_keywords": []
+  },
+  {
+    "question": "Summarize the most important conclusion or finding.",
+    "expected_keywords": []
+  },
+  {
+    "question": "Are there any numbers, dates, or statistics mentioned? List them.",
+    "expected_keywords": []
+  },
+  {
+    "question": "What question might someone ask that these sources do NOT answer?",
+    "expected_keywords": []
+  }
+]

@@ -1,0 +1,29 @@
+name: Run Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        # rag_engine.py imports sentence-transformers/groq/chromadb at module
+        # load time even though the smoke test mocks the embedding *call*,
+        # so the full dependency set is still needed to import the module -
+        # but no network calls to Hugging Face/Groq are made during the test
+        # itself (the real embedding model is monkeypatched out), and no
+        # API keys/secrets are required for this job.
+        run: pip install -r requirements-dev.txt
+
+      - name: Run offline pipeline smoke tests
+        run: pytest tests/test_pipeline_smoke.py -v
