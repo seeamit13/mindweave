@@ -42,6 +42,19 @@ cited answers, and generate a report or quiz from the notebook's content.
 
 ## Running locally
 
+### Python version
+
+Use **Python 3.12** for local development. This is the version used by the
+project's CI workflow, which installs the pinned dependencies and runs the
+pipeline smoke tests. Python 3.14 is not supported by the current dependency
+pins; in particular, the pinned `pydantic-core` build uses PyO3, which does
+not support Python 3.14. Other Python versions have not been verified.
+
+Make sure your selected interpreter is Python 3.12 before creating the
+virtual environment. On Windows, you can create it explicitly with
+`py -3.12 -m venv .venv`; on macOS/Linux, use
+`python3.12 -m venv .venv`.
+
 ```bash
 git clone <this-repo-url>
 cd notebooklm-clone
