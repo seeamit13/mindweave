@@ -1,5 +1,5 @@
 """
-Central configuration for the NotebookLM/Gemini Notebook clone.
+Central configuration for Mindweave.
 
 All paths are relative to DATA_DIR so the whole app's state (notebooks,
 sources, chat history, artifacts, vector DB) lives under one directory that

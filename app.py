@@ -1,5 +1,5 @@
 """
-NotebookLM / Gemini Notebook clone - Gradio application entrypoint.
+Mindweave - Gradio application entrypoint.
 
 Run locally:
     pip install -r requirements.txt
