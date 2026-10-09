@@ -100,7 +100,7 @@ app.py                    # Gradio UI - wires notebook mgmt, ingestion, chat, ar
 src/
   config.py                # paths, model names, chunking/retrieval parameters (env-var overridable)
   storage.py                # notebook CRUD, chat history, artifact registry (filesystem-backed)
-  ingestion.py               # PDF/PPTX/TXT/URL text extraction + two chunking strategies
+  ingestion.py               # PDF/PPTX/TXT/URL  text extraction + two chunking strategies
   rag_engine.py               # embeddings, per-notebook Chroma collections, retrieval strategies, cited generation
   artifacts.py                # report/quiz generation (LLM prompts -> saved .md)
   llm_client.py                # thin Groq API wrapper
